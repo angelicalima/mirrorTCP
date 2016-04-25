@@ -93,8 +93,6 @@ class mirror:
 
 
 if __name__ == "__main__":
-    nome_arquivo_log = 'log_' + str(datetime.now().replace(microsecond=0)).replace(' ', '_').replace(':', '').replace(
-        '-', '') + '.txt'
     arquivo_cfg = open('config.txt', 'r')
     porta_tcp_receber = int(arquivo_cfg.readline().replace('porta_tcp_receber','').replace(' ','').replace('=',''))
     porta_tcp_enviar = int(arquivo_cfg.readline().replace('porta_tcp_enviar=','').replace(' ','').replace('=',''))
