@@ -5,24 +5,22 @@ import threading
 from binascii import *
 
 class mirror:
-    nome_pasta_logs = 'log_mirror'
-    nome_arquivo_log = 'log_' + str(datetime.now().replace(microsecond=0)).replace(' ', '_').replace(':', '').replace(
-        '-', '') + '.txt'
-    pct = ''
-    try:
-        os.mkdir(nome_pasta_logs)
-    except:
-        pass
-    th_lista = []
-    arquivo_cfg = open('config.txt', 'r')
-    arquivo_log = open(nome_pasta_logs+'//'+nome_arquivo_log,'w',0)
 
-    porta_tcp_receber = int(arquivo_cfg.readline().replace('porta_tcp_receber','').replace(' ','').replace('=',''))
-    porta_tcp_enviar = int(arquivo_cfg.readline().replace('porta_tcp_enviar=','').replace(' ','').replace('=',''))
-    arquivo_cfg.close()
-
-    print "Escutando porta TCP: "+ str(porta_tcp_receber)
-    print "Redirecionando para porta TCP: "+ str(porta_tcp_enviar)
+    def __init__(self,porta_tcp_receber,porta_tcp_enviar):
+        self.porta_tcp_receber = porta_tcp_receber
+        self.porta_tcp_enviar = porta_tcp_enviar
+        nome_pasta_logs = 'log_mirror'
+        nome_arquivo_log = 'log_' + str(datetime.now().replace(microsecond=0)).replace(' ', '_').replace(':', '').replace(
+            '-', '') + '.txt'
+        pct = ''
+        try:
+            os.mkdir(nome_pasta_logs)
+        except:
+            pass
+        self.th_lista = []
+        self.arquivo_log = open(nome_pasta_logs+'//'+nome_arquivo_log,'w',0)
+        print "Escutando porta TCP: "+ str(self.porta_tcp_receber)
+        print "Redirecionando para porta TCP: "+ str(self.porta_tcp_enviar)
 
     def start_recebe(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,7 +58,7 @@ class mirror:
                                 self.arquivo_log.write('Enviado: ' + self.prefixo_log(r_client_address)+' '+ hexlify(self.pct)+"\n")
                             except:
                                 sock.close()
-                                th_replica.join(1)
+                                self.th_replica.join(1)
                                 break
                                 pass
                     except:
@@ -68,7 +66,7 @@ class mirror:
                         try:
                             connection, client_address = sock_cliente.accept()
                         except:
-                            print "conexao encerrada pelo cliente: " + str(connection)
+                            print "conexao encerrada pelo cliente: " + str(client_address)
                             self.arquivo_log.write(self.prefixo_log(server_address) + 'conexao encerrada pelo cliente: ' + str(client_address)+"\n")
                             break
 
@@ -95,7 +93,13 @@ class mirror:
 
 
 if __name__ == "__main__":
-    mirror = mirror()
+    nome_arquivo_log = 'log_' + str(datetime.now().replace(microsecond=0)).replace(' ', '_').replace(':', '').replace(
+        '-', '') + '.txt'
+    arquivo_cfg = open('config.txt', 'r')
+    porta_tcp_receber = int(arquivo_cfg.readline().replace('porta_tcp_receber','').replace(' ','').replace('=',''))
+    porta_tcp_enviar = int(arquivo_cfg.readline().replace('porta_tcp_enviar=','').replace(' ','').replace('=',''))
+    arquivo_cfg.close()
+    mirror = mirror(porta_tcp_receber,porta_tcp_enviar)
     thread_recebe = threading.Thread(target=mirror.start_recebe)
     thread_recebe.start()
 
