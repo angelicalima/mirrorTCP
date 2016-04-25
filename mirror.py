@@ -36,9 +36,10 @@ class mirror:
                 while True:
                     self.pct = connection.recv(1024)
                     if self.pct:
-                        self.arquivo_log.write(self.prefixo_log + self.pct)
+                        print "Recebido: " + self.prefixo_log(server_address)+ " " + self.pct
+                        self.arquivo_log.write(self.prefixo_log(server_address) + self.pct)
                     else:
-                        self.arquivo_log.write(self.prefixo_log + 'conexao encerrada pelo cliente: ' + client_address)
+                        self.arquivo_log.write(self.prefixo_log(server_address) + 'conexao encerrada pelo cliente: ' + client_address)
                         break
             finally:
                 connection.close()
@@ -54,16 +55,19 @@ class mirror:
                 try:
                     if self.pct:
                         sock.send(self.pct)
+                        print 'Enviado: ' + self.prefixo_log(client_address)+' '+self.pct
                 finally:
                     sock.close()
 
     @staticmethod
-    def prefixo_log(self):
-        prefixo = str(self.server_address) + ' ' + str(datetime) + ': '
+    def prefixo_log(self,server_address):
+        prefixo = str(server_address) + ' ' + str(datetime) + ': '
         return prefixo
 
 
 if __name__ == "__main__":
     mirror = mirror()
-    thread_recebe = threading(mirror.start_recebe, )
-    thread_recebe = threading(mirror.start_envia, )
+    thread_recebe = threading.Thread(target=mirror.start_recebe)
+    thread_envia = threading.Thread(target=mirror.start_envia)
+    thread_recebe.start()
+    thread_envia.start()
