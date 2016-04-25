@@ -1,0 +1,4 @@
+porta_tcp_receber=5711
+porta_tcp_enviar=5713
+
+.
